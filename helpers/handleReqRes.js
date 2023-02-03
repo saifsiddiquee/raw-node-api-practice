@@ -6,24 +6,24 @@
  *
  */
 
-//dependencies
+// dependencies
 const url = require('url');
 const { StringDecoder } = require('string_decoder');
 const routes = require('../routes');
 const { notFoundHandler } = require('../handlers/routehandlers/notFoundHandler');
 
-//module scaffolding
+// modue scaffolding
 const handler = {};
 
-handler.handleRequest = (req, res) => {
-    //request handling and parsing url
+handler.handleReqRes = (req, res) => {
+    // request handling
+    // get the url and parse it
     const parsedUrl = url.parse(req.url, true);
     const path = parsedUrl.pathname;
     const trimmedPath = path.replace(/^\/+|\/+$/g, '');
     const method = req.method.toLowerCase();
     const queryStringObject = parsedUrl.query;
-    const headerObject = req.headers;
-
+    const headersObject = req.headers;
 
     const requestProperties = {
         parsedUrl,
@@ -31,22 +31,23 @@ handler.handleRequest = (req, res) => {
         trimmedPath,
         method,
         queryStringObject,
-        headerObject
+        headersObject,
     };
 
     const decoder = new StringDecoder('utf-8');
     let realData = '';
 
-    const selectedHandler = routes[trimmedPath] ? routes[trimmedPath] : notFoundHandler;
-    selectedHandler(requestProperties, (statusCode, payload) => {
-        statusCode = typeof (statusCode) === 'number' ? statusCode : 500;
-        payload = typeof (payload) === 'object' ? payload : {};
+    const chosenHandler = routes[trimmedPath] ? routes[trimmedPath] : notFoundHandler;
 
-        const payLoadString = JSON.stringify(payload);
+    chosenHandler(requestProperties, (statusCode, payload) => {
+        statusCode = typeof statusCode === 'number' ? statusCode : 500;
+        payload = typeof payload === 'object' ? payload : {};
 
-        //return the final result
+        const payloadString = JSON.stringify(payload);
+
+        // return the final response
         res.writeHead(statusCode);
-        res.end(payLoadString);
+        res.end(payloadString);
     });
 
     req.on('data', (buffer) => {
@@ -54,12 +55,11 @@ handler.handleRequest = (req, res) => {
     });
 
     req.on('end', () => {
-        realData += decoder.end;
+        realData += decoder.end();
 
         console.log(realData);
-        //response handle
-        res.end("Hello World");
-
+        // response handle
+        res.end('Hello world');
     });
 };
 
