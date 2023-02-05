@@ -15,11 +15,13 @@ const enviroments = {};
 enviroments.staging = {
     port: 3000,
     envname: 'staging',
+    secret: 'AsDf1234'
 };
 
 enviroments.production = {
     port: 6000,
     envname: 'production',
+    secret: 'B07$VB#44@'
 };
 
 //determining the enviroment
